@@ -1,0 +1,12 @@
+input_dim: 416
+num_classes: 2
+num_heads: 8
+num_layers: 8
+dim_feedforward: 1024
+batch_size: 16
+pkl_file_path: /home/mtftau-5/workplace/dataset/data.pkl
+num_devices: 11
+test_size: 0.2
+lr: 0.00001
+num_epochs: 40
+random_state: 42
