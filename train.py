@@ -5,43 +5,25 @@ from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from feeder import AudioDataset
 from net import AM
-
-import yaml
-
-
-def load_config(config_path):
-    with open(config_path, 'r') as file:
-        config = yaml.safe_load(file)
-    return config
+from util import yaml_parser
 
 
 def main():
+    (
+        input_dim, num_classes, num_heads, num_layers, dim_feedforward,
+        batch_size, pkl_file_path, num_devices, test_size, num_epochs, random_state, lr
+    ) = yaml_parser()
 
-    config = load_config('MIMII/config/traib.yaml')
-
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-    input_dim = config['input_dim']
-    num_classes = config['num_classes']
-    num_heads = config['num_heads']
-    num_layers = config['num_layers']
-    dim_feedforward = config['dim_feedforward']
-    batch_size = config['batch_size']
-    pkl_file_path = config['pkl_file_path']
-    num_devices = config['num_devices']
-    test_size = config['test_size']
-    num_epochs = config['num_epochs']
-    random_state = config['random_state']
-    lr = config['lr']
     
-
-
+    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    
+    
     audio_dataset = AudioDataset(pkl_file_path, num_devices)
 
- 
-    train_data, test_data = train_test_split(audio_dataset, test_size = test_size, random_state = random_state)
+
+    train_data, test_data = train_test_split(audio_dataset, test_size=test_size, random_state=random_state)
+    
+    
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
@@ -50,8 +32,6 @@ def main():
     model = model.to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=lr)
-
-
 
     for epoch in range(num_epochs):
         running_loss = 0.0
@@ -73,6 +53,9 @@ def main():
 
 
         print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(train_loader)}")
+
+
+
 
 
     model.eval()
